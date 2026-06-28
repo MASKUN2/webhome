@@ -40,7 +40,7 @@ export const services: Service[] = [
     name: "inhology",
     description: "Personal blog — writing on dev, infra, and whatever else.",
     href: "https://inhology.jwih.org",
-    status: "planned",
+    status: "live",
     icon: "✍️",
   },
 ];
