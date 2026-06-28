@@ -1,25 +1,52 @@
+import { auth, signIn, signOut } from "@/auth";
+
 /**
  * Auth status slot (top-right of the header).
  *
- * PLACEHOLDER for the SSO phase. Today webhome is fully public and there is no
- * login, so this renders a disabled stub. Once Authentik (auth.jwih.org) is up
- * and webhome is wired as an OIDC client (Auth.js), replace the stub with the
- * real session widget:
+ * Server component: reads the Authentik OIDC session via Auth.js.
+ *   - signed out → "Sign in" → signIn("authentik") (server action)
+ *   - signed in  → name/email + "Sign out"
  *
- *   - signed out → "Sign in" button → next-auth signIn("authentik")
- *   - signed in  → avatar / name + "Sign out"
- *
- * Because every *.jwih.org app authenticates against the same Authentik IdP,
- * a session established here is silently recognized by the other services (SSO).
+ * Every *.jwih.org app authenticates against the same Authentik IdP, so a session
+ * established here is silently recognized by the other services (SSO).
  */
-export function AuthStatus() {
+const btn =
+  "rounded-full border border-zinc-300 px-3 py-1 text-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800";
+
+export async function AuthStatus() {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user) {
+    return (
+      <form
+        action={async () => {
+          "use server";
+          await signIn("authentik");
+        }}
+      >
+        <button type="submit" className={btn}>
+          Sign in
+        </button>
+      </form>
+    );
+  }
+
   return (
-    <span
-      aria-disabled
-      title="Sign-in arrives with SSO (Authentik) — not wired up yet"
-      className="cursor-not-allowed rounded-full border border-zinc-300 px-3 py-1 text-sm text-zinc-400 select-none dark:border-zinc-700 dark:text-zinc-600"
-    >
-      Sign in
-    </span>
+    <div className="flex items-center gap-3">
+      <span className="text-sm text-zinc-600 dark:text-zinc-400">
+        {user.name ?? user.email}
+      </span>
+      <form
+        action={async () => {
+          "use server";
+          await signOut();
+        }}
+      >
+        <button type="submit" className={btn}>
+          Sign out
+        </button>
+      </form>
+    </div>
   );
 }
