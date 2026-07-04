@@ -1,0 +1,75 @@
+# webhome — jwih.org 도메인 포털 (app 노드, Traefik Ingress).
+# 공유 리소스(Namespace apps + Middleware forwarded-https)는 homelab 레포 k8s/apps/apps-shared.yaml 에서 관리.
+# 이미지 이름은 짧게(webhome) 두고 kustomization.yaml 이 ghcr.io/maskun2/webhome:<sha> 로 치환(CI 가 bump).
+# 시크릿(webhome-oidc)은 .env 에서 생성, 미커밋 → GitOps 관리 대상 아님.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhome
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: webhome }
+  template:
+    metadata:
+      labels: { app: webhome }
+    spec:
+      nodeSelector:
+        role: apps
+      containers:
+        - name: webhome
+          image: webhome
+          imagePullPolicy: IfNotPresent   # sha 태그는 불변이라 캐시 재사용 안전
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: webhome-oidc   # AUTH_AUTHENTIK_ID/SECRET/ISSUER, AUTH_URL, AUTH_SECRET
+          resources:
+            requests: { cpu: "50m", memory: "128Mi" }
+            limits: { cpu: "500m", memory: "256Mi" }
+          readinessProbe:
+            httpGet: { path: /, port: 3000 }
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /, port: 3000 }
+            initialDelaySeconds: 10
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhome
+  namespace: apps
+spec:
+  selector: { app: webhome }
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webhome
+  namespace: apps
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: apps-forwarded-https@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: jwih.org
+      http: &webhome_backend
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: webhome
+                port: { number: 80 }
+    - host: www.jwih.org
+      http: *webhome_backend
+    - host: home.jwih.org
+      http: *webhome_backend

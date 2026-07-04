@@ -53,5 +53,5 @@ ssh k3s-app 'cd ~/webhome && sudo docker build -t webhome:<태그> . \
 kubectl -n apps set image deploy/webhome webhome=webhome:<태그>
 ```
 - 매니페스트(Deployment/Service/Ingress + forwarded-https 미들웨어): `homelab/k8s/apps/webhome.yaml`
-- 공개 경로: CF Tunnel → Traefik(`10.0.0.22`) → webhome. hostname은 Cloudflare Zero Trust에서 관리.
+- 공개 경로: CF Tunnel → Traefik(k3s app 노드) → webhome. hostname은 Cloudflare Zero Trust에서 관리.
 - 현재 이미지: `webhome:0.3.0`.
