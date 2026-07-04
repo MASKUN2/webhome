@@ -4,8 +4,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: apps
 resources:
-  - manifest.yaml
+- manifest.yaml
 images:
-  - name: webhome
-    newName: ghcr.io/maskun2/webhome
-    newTag: latest   # CI 가 commit sha 로 교체
+- name: webhome
+  newName: ghcr.io/maskun2/webhome
+  newTag: 7b7e81bcdfcc86066d4c4252ff802c47554cfa3b
