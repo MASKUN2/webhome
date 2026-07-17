@@ -43,4 +43,12 @@ export const services: Service[] = [
     status: "live",
     icon: "✍️",
   },
+  {
+    id: "quizas",
+    name: "quizas",
+    description: "blisslowell's personal blog.",
+    href: "https://quizas.jwih.org",
+    status: "live",
+    icon: "📝",
+  },
 ];
