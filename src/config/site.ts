@@ -51,4 +51,12 @@ export const services: Service[] = [
     status: "live",
     icon: "📝",
   },
+  {
+    id: "photobook",
+    name: "photobook",
+    description: "Family photo albums — public albums for everyone, editing for family.",
+    href: "https://photobook.jwih.org",
+    status: "live",
+    icon: "📖",
+  },
 ];
