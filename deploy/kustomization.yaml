@@ -8,4 +8,4 @@ resources:
 images:
 - name: webhome
   newName: ghcr.io/maskun2/webhome
-  newTag: 38e51aff74897026c51a64a77250521092d7e42d
+  newTag: 03cdf4c6c918b32aaed324e1573925b2d0fbd553
